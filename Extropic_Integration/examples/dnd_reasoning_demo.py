@@ -9,7 +9,6 @@ import sys
 # Add the parent directory to sys.path to allow importing dnd_kernel
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-import jax.numpy as jnp
 from dnd_kernel.omega import OmegaKernel
 
 

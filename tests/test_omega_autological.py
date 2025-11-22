@@ -21,7 +21,6 @@ class TestOmegaAutological(unittest.TestCase):
     def test_process_intent_cycle(self):
         """Verify the full Omega Cycle execution."""
         kernel = OmegaKernel(size=50)
-        initial_density = kernel.logic_density
         
         # Run the cycle
         result = kernel.process_intent("create structure")
