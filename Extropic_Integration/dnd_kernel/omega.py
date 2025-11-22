@@ -81,7 +81,9 @@ class OmegaKernel:
             print(f"[Omega] Autopoiesis: Low coherence ({coherence:.2f}). Increasing Focus to {self.logic_density:.2f}")
         elif coherence > 0.9:
             self.logic_density = max(0.05, self.logic_density - 0.05)
-            print(f"[Omega] Autopoiesis: High coherence ({coherence:.2f}). Decreasing Focus to {self.logic_density:.2f}")
+            print(
+                f"[Omega] Autopoiesis: High coherence ({coherence:.2f}). Decreasing Focus to {self.logic_density:.2f}"
+            )
 
     def perturb(self, intent_text: str):
         """

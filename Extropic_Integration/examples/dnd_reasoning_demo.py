@@ -25,26 +25,26 @@ def main():
     # Define a sequence of intents to test adaptation
     intents = [
         "Generate absolute chaos and noise",  # Should have low coherence -> Increase Density
-        "Establish perfect order and structure", # Should have high coherence -> Decrease Density
+        "Establish perfect order and structure",  # Should have high coherence -> Decrease Density
         "Generate absolute chaos and noise",  # Should be more constrained now?
     ]
 
     for i, intent in enumerate(intents):
-        print(f"\n\n--- CYCLE {i+1}: '{intent}' ---")
-        
+        print(f"\n\n--- CYCLE {i + 1}: '{intent}' ---")
+
         # Run the full Autological Cycle
         result = kernel.process_intent(intent, steps=2000)
-        
+
         # Analysis
         coherence = result["coherence"]
         energy = result["energy"]
-        
+
         print(f"Resultant Coherence: {coherence:.4f}")
         print(f"Resultant Energy:    {energy:.4f}")
-        
+
         # Show Adaptation
         print(f"New Logic Density:   {kernel.logic_density:.2f}")
-        
+
         if coherence > 0.8:
             print("Status: CRYSTALLIZED (High Order)")
         elif coherence < 0.2:

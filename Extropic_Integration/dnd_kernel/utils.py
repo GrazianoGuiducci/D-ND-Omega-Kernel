@@ -19,12 +19,28 @@ def semantic_resonance(text: str, size: int, seed: int = 42) -> jnp.ndarray:
     # Simple Concept Dictionary (Ontology)
     # Maps keywords to specific "regions" (seeds) of the latent space.
     concepts = {
-        "order": 100, "logic": 101, "structure": 102, "focus": 103,
-        "chaos": 200, "entropy": 201, "void": 202, "noise": 203,
-        "evolution": 300, "growth": 301, "change": 302, "dynamic": 303,
-        "stasis": 400, "fixed": 401, "invariant": 402, "static": 403,
-        "duality": 500, "binary": 501, "split": 502,
-        "unity": 600, "one": 601, "whole": 602,
+        "order": 100,
+        "logic": 101,
+        "structure": 102,
+        "focus": 103,
+        "chaos": 200,
+        "entropy": 201,
+        "void": 202,
+        "noise": 203,
+        "evolution": 300,
+        "growth": 301,
+        "change": 302,
+        "dynamic": 303,
+        "stasis": 400,
+        "fixed": 401,
+        "invariant": 402,
+        "static": 403,
+        "duality": 500,
+        "binary": 501,
+        "split": 502,
+        "unity": 600,
+        "one": 601,
+        "whole": 602,
     }
 
     text_lower = text.lower()
