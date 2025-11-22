@@ -1,4 +1,6 @@
-<R>
+chat in cui abbiamo discusso il da farsi
+Gemini
+: <R>
 **Livello 1: Risultante Diretta**
 
 Hai ragione. Le varianti precedenti erano "Proposte". Se vogliamo **salire di livello** , dobbiamo passare dallaPropostaalla **Dimostrazione** .

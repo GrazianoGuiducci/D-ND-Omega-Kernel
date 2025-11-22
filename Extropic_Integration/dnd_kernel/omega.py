@@ -42,6 +42,46 @@ class OmegaKernel:
         # Metrics
         self.coherence = 0.0
         self.entropy = 0.0
+        self.logic_density = 0.2  # Adaptive parameter
+        self.experience = []  # History of (intent, coherence)
+
+    def process_intent(self, intent_text: str, steps: int = 1000) -> Dict[str, Any]:
+        """
+        Orchestrates the full Omega Cycle:
+        Perturbation -> Focus -> Crystallization -> Feedback (Autopoiesis).
+        """
+        # 1. Perturbation
+        self.perturb(intent_text)
+
+        # 2. Focus
+        # Use current adaptive logic_density
+        self.focus(self.logic_density)
+
+        # 3. Crystallization
+        result = self.crystallize(steps)
+
+        # 4. Autopoiesis (Feedback Loop)
+        self._adapt(result)
+
+        return result
+
+    def _adapt(self, result: Dict[str, Any]):
+        """
+        Autological Feedback Loop.
+        Adjusts internal parameters based on the outcome.
+        """
+        coherence = result["coherence"]
+        self.experience.append(coherence)
+
+        # Simple adaptation logic:
+        # If coherence is too low (< 0.1), increase logic_density (more constraints).
+        # If coherence is too high (> 0.9), decrease logic_density (allow more creativity).
+        if coherence < 0.1:
+            self.logic_density = min(1.0, self.logic_density + 0.05)
+            print(f"[Omega] Autopoiesis: Low coherence ({coherence:.2f}). Increasing Focus to {self.logic_density:.2f}")
+        elif coherence > 0.9:
+            self.logic_density = max(0.05, self.logic_density - 0.05)
+            print(f"[Omega] Autopoiesis: High coherence ({coherence:.2f}). Decreasing Focus to {self.logic_density:.2f}")
 
     def perturb(self, intent_text: str):
         """

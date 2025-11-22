@@ -12,21 +12,44 @@ import numpy as np
 
 def semantic_resonance(text: str, size: int, seed: int = 42) -> jnp.ndarray:
     """
-    Mock Semantic Resonance.
-    Maps a text string (Intent) to a bias vector (h) using deterministic hashing.
-
-    In a full implementation, this would use an LLM embedding model.
+    Semantic Resonance (Enhanced).
+    Maps a text string (Intent) to a bias vector (h) using a Concept Dictionary.
+    This simulates "Concept Activation" rather than just random hashing.
     """
-    # Create a deterministic seed from the text
-    hash_object = hashlib.sha256(text.encode())
-    hex_dig = hash_object.hexdigest()
-    text_seed = int(hex_dig[:8], 16)
+    # Simple Concept Dictionary (Ontology)
+    # Maps keywords to specific "regions" (seeds) of the latent space.
+    concepts = {
+        "order": 100, "logic": 101, "structure": 102, "focus": 103,
+        "chaos": 200, "entropy": 201, "void": 202, "noise": 203,
+        "evolution": 300, "growth": 301, "change": 302, "dynamic": 303,
+        "stasis": 400, "fixed": 401, "invariant": 402, "static": 403,
+        "duality": 500, "binary": 501, "split": 502,
+        "unity": 600, "one": 601, "whole": 602,
+    }
 
-    # Combine with base seed
-    key = jrandom.PRNGKey(seed + text_seed)
+    text_lower = text.lower()
+    active_seeds = []
 
-    # Generate random vector in [-1, 1]
-    # Represents the "pull" of the intent on each node
+    # Find active concepts
+    for word, val in concepts.items():
+        if word in text_lower:
+            active_seeds.append(val)
+
+    # If no concepts found, fall back to hash of the text
+    if not active_seeds:
+        hash_object = hashlib.sha256(text.encode())
+        hex_dig = hash_object.hexdigest()
+        base_seed = int(hex_dig[:8], 16)
+    else:
+        # Combine active concept seeds
+        base_seed = sum(active_seeds)
+
+    # Combine with master seed
+    final_seed = seed + base_seed
+    key = jrandom.PRNGKey(final_seed)
+
+    # Generate resonance vector
+    # We use the seed to determine the "direction" of the bias
     resonance_vector = jrandom.uniform(key, shape=(size,), minval=-1.0, maxval=1.0)
 
     return resonance_vector
