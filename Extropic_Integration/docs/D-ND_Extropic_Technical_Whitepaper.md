@@ -2,9 +2,9 @@
 # TECHNICAL BREAKDOWN: THE COGNITIVE PROBABILITY LAYER
 **Proposal for a Native Cognitive Operating System on Thermodynamic Substrates**
 
-**Date:** November 20, 2025
-**To:** Extropic Engineering Team
-**From:** [Tuo Nome/Organizzazione] - D-ND Architecture Lab
+**Version:** 1.0 (Autological)
+**Status:** Active Proposal
+**Author:** D-ND Architecture Lab
 
 ---
 
