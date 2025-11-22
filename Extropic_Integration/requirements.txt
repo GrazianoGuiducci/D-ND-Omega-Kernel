@@ -1,0 +1,11 @@
+jax
+jaxlib
+equinox>=0.11.2
+jaxtyping>=0.2.23
+optax
+networkx
+numpy
+scipy
+matplotlib
+# Install thrml from the root directory in editable mode
+-e ../
