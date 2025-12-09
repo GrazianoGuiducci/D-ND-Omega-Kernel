@@ -8,21 +8,20 @@ from typing import Any, Dict
 import jax
 import jax.numpy as jnp
 
+# Hardware Dynamics Imports
+from Extropic_Integration.hardware_dynamics.combinatorial import MetricTensor
+from Extropic_Integration.hardware_dynamics.metrics import cycle_stability
+from Extropic_Integration.hybrid.phi import PhiTransform
+
 # THRML Imports
 from thrml.pgm import SpinNode
-from thrml import Block, SamplingSchedule, sample_states
-from thrml.models import IsingEBM, IsingSamplingProgram, hinton_init
 
 # D-ND Imports
 from .axioms import DNDConstants
 from .genesis import Genesis
 from .utils import semantic_resonance, topological_coupling
 
-# Hardware Dynamics Imports
-from Extropic_Integration.hardware_dynamics.combinatorial import MetricTensor, transfer_function
-from Extropic_Integration.hardware_dynamics.metrics import curvature_index, cycle_stability
-from Extropic_Integration.hybrid.phi import PhiTransform
-# Note: vE_Scultore is injected at runtime to avoid circular imports if possible, 
+# Note: vE_Scultore is injected at runtime to avoid circular imports if possible,
 # or we import it inside the method.
 
 
@@ -45,18 +44,18 @@ class OmegaKernel:
         # State
         self.nodes = [SpinNode() for i in range(size)]
         self.h_bias = jnp.zeros(size)
-        self.metric_tensor = jnp.eye(size) # Formerly J_coupling
+        self.metric_tensor = jnp.eye(size)  # Formerly J_coupling
         self.current_R = jnp.zeros(size)  # The Resultant
 
         # Metrics
         self.coherence = 0.0
         self.entropy = 0.0
-        self.tension = 0.0 # New metric for Phi
+        self.tension = 0.0  # New metric for Phi
         self.logic_density = 0.2  # Adaptive parameter
         self.logic_density = 0.2  # Adaptive parameter
         self.experience = []  # History of (intent, coherence)
-        self.energy_history = [] # History of energy during last crystallization
-        self.phi = PhiTransform() # Hybrid Transition Logic
+        self.energy_history = []  # History of energy during last crystallization
+        self.phi = PhiTransform()  # Hybrid Transition Logic
 
     def process_intent(self, intent_text: str, steps: int = 1000) -> Dict[str, Any]:
         """
@@ -69,7 +68,7 @@ class OmegaKernel:
         # 2. Focus
         # vE_Scultore: Apply Dynamic Gravity based on intent
         gravity_info = self.apply_dynamic_gravity(intent_text)
-        
+
         # Use current adaptive logic_density
         self.focus(self.logic_density)
 
@@ -81,35 +80,37 @@ class OmegaKernel:
         # | Omega(n+1) / Omega(n) - 1 | < epsilon
         current_coherence = result["coherence"]
         current_tension = result["tension"]
-        
+
         # Check stability against previous experience
         is_stable = False
         if self.experience:
-            prev_coherence = self.experience[-1] if isinstance(self.experience[-1], float) else self.experience[-1]["coherence"]
+            prev_coherence = (
+                self.experience[-1] if isinstance(self.experience[-1], float) else self.experience[-1]["coherence"]
+            )
             is_stable = cycle_stability(current_coherence, prev_coherence)
-            
+
         self._adapt(current_coherence, current_tension, is_stable)
-        
+
         # vE_Archivista: Consolidate Memory
-        memory_info = self.consolidate_memory(intent_text, result)
-        
+        self.consolidate_memory(intent_text, result)
+
         # Add Didactic Info to Result (Cognitive Bridge)
         dsl_trace = self._generate_dsl_trace(intent_text, gravity_info, result)
         rosetta_stone = self._generate_rosetta_stone()
-        
+
         # Generate Visualization Data (Visual Cortex)
         lattice_data = self._generate_lattice_data(result["R"])
-        tensor_field = self.metric_tensor.tolist() # Convert JAX array to list
-        
+        tensor_field = self.metric_tensor.tolist()  # Convert JAX array to list
+
         result["didactic"] = {
             "timeline": dsl_trace,
             "rosetta_stone": rosetta_stone,
             "lattice": lattice_data,
             "tensor_field": tensor_field,
             "gravity": float(gravity_info["curvature"]),
-            "entropy": float(self.entropy)
+            "entropy": float(self.entropy),
         }
-        
+
         return result
 
     def _generate_lattice_data(self, state_vector) -> list:
@@ -118,33 +119,32 @@ class OmegaKernel:
         Maps the 1D state vector to a 2D grid.
         """
         lattice = []
-        grid_size = int(self.size ** 0.5)
-        
+        grid_size = int(self.size**0.5)
+
         # Ensure state_vector is a numpy/jax array
         spins = jnp.array(state_vector)
-        
+
         for i in range(self.size):
             x = i % grid_size
             y = i // grid_size
-            
+
             # Calculate a simulated stability based on local alignment (simplified)
             # In a real Ising model, stability ~ local field alignment
             # Here we just use a placeholder or derived value
-            stability = 0.8 # Default high stability for crystallized state
-            
-            lattice.append({
-                "id": i,
-                "x": x,
-                "y": y,
-                "spin": int(spins[i]),
-                "stability": stability,
-                "assetTicker": None # Placeholder for future econophysics
-            })
-            
-        return lattice
+            stability = 0.8  # Default high stability for crystallized state
 
-        
-        return result
+            lattice.append(
+                {
+                    "id": i,
+                    "x": x,
+                    "y": y,
+                    "spin": int(spins[i]),
+                    "stability": stability,
+                    "assetTicker": None,  # Placeholder for future econophysics
+                }
+            )
+
+        return lattice
 
     def _generate_dsl_trace(self, intent: str, gravity_info: Dict[str, Any], result: Dict[str, Any]) -> list:
         """
@@ -156,25 +156,25 @@ class OmegaKernel:
         # In a real implementation, this would be the "Succo" extracted by an LLM.
         # Here we simulate the draft based on the intent.
         draft_summary = f"Maximize coherence for '{intent}'"
-        
+
         # 2. Variables
         # The domain is the spin network state space.
-        variables_desc = f"SpinNode[0..{self.size-1}] ∈ {{-1, 1}}"
-        
+        variables_desc = f"SpinNode[0..{self.size - 1}] ∈ {{-1, 1}}"
+
         # 3. Constraints
         # Logic Density determines the complexity of constraints.
         density = self.logic_density
         constraints_desc = f"LogicDensity({density:.2f}) -> ∀ i,j: J_ij != 0"
-        
+
         # 4. Energy Mapping
         # Mapping constraints to Hamiltonian.
         energy_desc = "H = -Σ h_i s_i - Σ J_ij s_i s_j"
-        
+
         # 5. Hardware Execution
         # TSU simulation details.
         steps = len(self.energy_history)
         hardware_desc = f"TSU::Anneal(steps={steps}, schedule='simulated')"
-        
+
         # 6. Output
         coherence = result["coherence"]
         output_desc = f"FinalState (Coherence: {coherence:.2f})"
@@ -186,7 +186,7 @@ class OmegaKernel:
                 "d_nd": "Intent Extraction",
                 "physics": "Boundary Conditions",
                 "detail": f"Intent: '{intent}' -> Draft: '{draft_summary}'",
-                "icon": "📝"
+                "icon": "📝",
             },
             {
                 "step": "VARIABLES",
@@ -194,7 +194,7 @@ class OmegaKernel:
                 "d_nd": "Concept Space",
                 "physics": "Degrees of Freedom",
                 "detail": variables_desc,
-                "icon": "xyz"
+                "icon": "xyz",
             },
             {
                 "step": "CONSTRAINTS",
@@ -202,7 +202,7 @@ class OmegaKernel:
                 "d_nd": "Axiomatic Rules",
                 "physics": "Coupling Matrix (J)",
                 "detail": constraints_desc,
-                "icon": "🔗"
+                "icon": "🔗",
             },
             {
                 "step": "ENERGY",
@@ -210,7 +210,7 @@ class OmegaKernel:
                 "d_nd": "Dissonance Map",
                 "physics": "Hamiltonian (H)",
                 "detail": energy_desc,
-                "icon": "⚡"
+                "icon": "⚡",
             },
             {
                 "step": "HARDWARE",
@@ -218,7 +218,7 @@ class OmegaKernel:
                 "d_nd": "Cognitive Processing",
                 "physics": "TSU Annealing",
                 "detail": hardware_desc,
-                "icon": "🌡️"
+                "icon": "🌡️",
             },
             {
                 "step": "OUTPUT",
@@ -226,8 +226,8 @@ class OmegaKernel:
                 "d_nd": "Manifestation",
                 "physics": "Ground State",
                 "detail": output_desc,
-                "icon": "💎"
-            }
+                "icon": "💎",
+            },
         ]
 
     def _generate_rosetta_stone(self) -> Dict[str, str]:
@@ -241,7 +241,7 @@ class OmegaKernel:
             "∀ (FORALL)": "Global Field Constraint",
             "Minimize": "Thermodynamic Annealing",
             "SeedNoise": "Probabilistic Gap-Filling",
-            "Converge": "Ground State (Solution)"
+            "Converge": "Ground State (Solution)",
         }
 
     def _adapt(self, coherence: float, tension: float, is_stable: bool):
@@ -250,31 +250,31 @@ class OmegaKernel:
         Uses PhiTransform to trigger Critical Transitions.
         """
         self.experience.append(coherence)
-        
+
         # 1. Check for Phi Transform (Critical Transition)
         is_phi, phi_coeff = self.phi.evaluate(coherence, tension)
-        
+
         if is_phi:
             # Criticality reached! Re-open the structure.
             old_density = self.logic_density
             self.logic_density = self.phi.apply_transform(self.logic_density, phi_coeff)
             print(f"[Omega] PHI TRANSFORM TRIGGERED! (C={coherence:.2f}, T={tension:.2f})")
             print(f"        Re-opening Structure: Density {old_density:.2f} -> {self.logic_density:.2f}")
-            return # Phi overrides standard adaptation
+            return  # Phi overrides standard adaptation
 
         # 2. Standard Adaptation (if no Phi)
         # If unstable, we need more structure (Gravity) -> Increase Density
         if not is_stable:
-             self.logic_density = min(1.0, self.logic_density + 0.05)
-             print(f"[Omega] Autopoiesis: Unstable Cycle. Increasing Gravity to {self.logic_density:.2f}")
+            self.logic_density = min(1.0, self.logic_density + 0.05)
+            print(f"[Omega] Autopoiesis: Unstable Cycle. Increasing Gravity to {self.logic_density:.2f}")
         # If stable but low coherence, we might be stuck in a local minimum -> Decrease Density (Heat)
         elif coherence < 0.5:
-             self.logic_density = max(0.1, self.logic_density - 0.05)
-             print(f"[Omega] Autopoiesis: Low Coherence. Increasing Entropy to {self.logic_density:.2f}")
+            self.logic_density = max(0.1, self.logic_density - 0.05)
+            print(f"[Omega] Autopoiesis: Low Coherence. Increasing Entropy to {self.logic_density:.2f}")
         # If stable and high coherence, we are in Flow -> Maintain or slight relax
         else:
-             self.logic_density = max(0.1, self.logic_density - 0.01)
-             print(f"[Omega] Autopoiesis: Stable Flow. Maintaining Gravity at {self.logic_density:.2f}")
+            self.logic_density = max(0.1, self.logic_density - 0.01)
+            print(f"[Omega] Autopoiesis: Stable Flow. Maintaining Gravity at {self.logic_density:.2f}")
 
     def perturb(self, intent_text: str):
         """
@@ -304,20 +304,9 @@ class OmegaKernel:
         """
         print(f"[Omega] Phase 2: Focus - Warping Spacetime Metric (Density: {logic_density})")
 
-        # 1. Generate Metric Tensor
-        # We use the MetricTensor class to warp space based on density
-        mt = MetricTensor(self.size)
-        
-        # Simulate "Gravity" by adding random warpings (in a real system, this is semantic)
-        # We assume logic_density correlates to the number of warped connections
-        num_warps = int(self.size * self.size * logic_density * 0.1)
-        
-        # Create a temporary random key for this (should be deterministic in production)
-        key = jax.random.PRNGKey(42) 
-        
         # We just use the topological_coupling utility for now but treat it as metric perturbation
         perturbation = topological_coupling(self.size, density=logic_density)
-        
+
         # g_uv = delta_uv + h_uv
         self.metric_tensor = jnp.eye(self.size) + perturbation
 
@@ -327,7 +316,7 @@ class OmegaKernel:
         """
         Phase 3: Crystallization (Manifestation).
         Collapses the wave function into a Resultant (R).
-        
+
         Args:
             steps: Number of thermodynamic steps.
             sculptor: Optional vE_Scultore instance for dynamic warping.
@@ -376,8 +365,8 @@ class OmegaKernel:
 
         key = jax.random.PRNGKey(0)
         final_state, energy_history = self._simulate_gibbs_sampling(key, steps, sculptor)
-        
-        self.energy_history = energy_history # Store for introspection
+
+        self.energy_history = energy_history  # Store for introspection
         self.current_R = final_state
 
         return {
@@ -385,7 +374,7 @@ class OmegaKernel:
             "coherence": self._calculate_coherence(self.current_R),
             "energy": self._calculate_energy(self.current_R),
             "tension": self._calculate_tension(self.current_R),
-            "gradient": energy_history[-1] - energy_history[-2] if len(energy_history) > 1 else 0.0
+            "gradient": energy_history[-1] - energy_history[-2] if len(energy_history) > 1 else 0.0,
         }
 
     def _calculate_tension(self, state):
@@ -400,7 +389,7 @@ class OmegaKernel:
         # Max energy estimation needs to account for the metric perturbation
         h_uv = self.metric_tensor - jnp.eye(self.size)
         max_energy = 0.5 * jnp.sum(jnp.abs(h_uv)) + jnp.sum(jnp.abs(self.h_bias))
-        
+
         # Energy is usually negative for ground state.
         # Tension = 1.0 means High Energy (Bad). Tension = 0.0 means Low Energy (Good).
         # We map Energy [-Max, +Max] to Tension [0, 1]
@@ -411,13 +400,13 @@ class OmegaKernel:
         """
         Simulates the relaxation process (Gibbs Sampling) using JAX.
         This is the "Software TSU".
-        
+
         Supports Dynamic Sculpting if 'sculptor' is provided.
         """
         state = jnp.sign(self.h_bias)  # Start aligned with bias
         # If bias is 0, random start
         state = jnp.where(state == 0, jax.random.choice(key, jnp.array([-1.0, 1.0]), shape=state.shape), state)
-        
+
         energy_history = []
         current_energy = self._calculate_energy(state)
         energy_history.append(current_energy)
@@ -425,19 +414,19 @@ class OmegaKernel:
         # We cannot use jax.lax.fori_loop easily if we want Python-side callbacks (Sculptor).
         # For the prototype with Sculptor, we use a Python loop.
         # Ideally, Sculptor logic should be JIT-compiled too.
-        
+
         current_state = state
-        
+
         for i in range(steps):
             # Calculate local field: h + metric @ current_state
             # In curved space, the "force" is the covariant derivative, here simplified to metric interaction
-            # Note: We subtract the self-interaction (diagonal) if we want pure Ising, 
-            # but for Metric Tensor, the diagonal is 1.0 (Identity). 
+            # Note: We subtract the self-interaction (diagonal) if we want pure Ising,
+            # but for Metric Tensor, the diagonal is 1.0 (Identity).
             # We need to be careful. Ising J usually has 0 diagonal.
             # Metric g has 1 diagonal.
             # Interaction = (g - I) @ s + s (if we consider s as the inertial term)
             # Let's stick to the "Interaction" part: h_uv = g_uv - delta_uv
-            
+
             h_uv = self.metric_tensor - jnp.eye(self.size)
             local_field = self.h_bias + jnp.dot(h_uv, current_state)
 
@@ -451,18 +440,18 @@ class OmegaKernel:
             k = jax.random.fold_in(key, i)
             random_vals = jax.random.uniform(k, shape=current_state.shape)
             new_state = jnp.where(random_vals < probs, 1.0, -1.0)
-            
+
             # --- SCULPTOR INTERVENTION ---
-            if sculptor and i % 10 == 0: # Check every 10 steps
+            if sculptor and i % 10 == 0:  # Check every 10 steps
                 new_energy = self._calculate_energy(new_state)
                 gradient = new_energy - current_energy
-                
+
                 # The Sculptor modifies the MetricTensor in-place (conceptually)
                 # We need to update self.metric_tensor
                 # Note: MetricTensor class is Python, so we call it.
                 # We need to wrap the JAX array back to something Sculptor can handle if needed,
                 # but Sculptor uses JAX ops so it's fine.
-                
+
                 # We need to pass the MetricTensor OBJECT, not the array, if we want the method.
                 # But self.metric_tensor is just the array.
                 # We need to reconstruct the wrapper or change how we store it.
@@ -471,15 +460,15 @@ class OmegaKernel:
                 # We need to fix this mismatch.
                 # Let's adapt Sculptor to take the array for now or wrap it.
                 # Simpler: Let's make Sculptor take (metric_array, state, energy, grad) -> new_metric_array
-                
+
                 # Assuming we refactor Sculptor or wrap it here.
                 # Let's wrap it temporarily.
                 mt_wrapper = MetricTensor(self.size)
                 mt_wrapper.metric = self.metric_tensor
-                
+
                 mt_wrapper = sculptor.sculpt(mt_wrapper, new_state, new_energy, gradient)
                 self.metric_tensor = mt_wrapper.get_metric()
-                
+
                 current_energy = new_energy
                 energy_history.append(current_energy)
 
@@ -491,7 +480,7 @@ class OmegaKernel:
         """Hamiltonian: H = - sum(h_i * s_i) - 0.5 * sum(h_uv * s_u * s_v)"""
         # We use the perturbation h_uv for energy calculation
         h_uv = self.metric_tensor - jnp.eye(self.size)
-        
+
         term_h = -jnp.dot(self.h_bias, state)
         term_J = -0.5 * jnp.dot(state, jnp.dot(h_uv, state))
         return term_h + term_J
@@ -509,29 +498,26 @@ class OmegaKernel:
         """
         coherence = result["coherence"]
         status = "ignored"
-        
+
         # 1. Retroactive Valuation
         # If coherence is high, this was a "Good Thought".
         if coherence > 0.8:
             print(f"[vE_Archivista] High Coherence ({coherence:.2f}). Consolidating Memory.")
-            self.experience.append({
-                "intent": intent,
-                "state": result["R"],
-                "coherence": coherence,
-                "timestamp": len(self.experience)
-            })
+            self.experience.append(
+                {"intent": intent, "state": result["R"], "coherence": coherence, "timestamp": len(self.experience)}
+            )
             status = "consolidated"
-            
+
             # 2. Bias Update (Hebbian Learning)
             # "Neurons that fire together, wire together"
             # We slightly align the bias field towards this successful state
             learning_rate = 0.05
             self.h_bias = self.h_bias + learning_rate * result["R"]
-            
+
         elif coherence < 0.2:
-             print(f"[vE_Archivista] Low Coherence ({coherence:.2f}). Discarding Noise.")
-             status = "discarded"
-             
+            print(f"[vE_Archivista] Low Coherence ({coherence:.2f}). Discarding Noise.")
+            status = "discarded"
+
         return {"status": status, "coherence": coherence}
 
     def apply_dynamic_gravity(self, intent_text: str):
@@ -548,21 +534,21 @@ class OmegaKernel:
             "entropy": 0.05,
             "void": 0.0,
             "balance": 0.5,
-            "flow": 0.4
+            "flow": 0.4,
         }
-        
+
         # Detect keywords
-        detected_gravity = 0.2 # Default
+        detected_gravity = 0.2  # Default
         detected_word = "default"
         for word, g in gravity_map.items():
             if word in intent_text.lower():
                 detected_gravity = g
                 detected_word = word
                 print(f"[vE_Scultore] Detected Semantic Mass: '{word}' (G={g})")
-                break # Take the first strong signal
-        
+                break  # Take the first strong signal
+
         # Apply to Logic Density
         self.logic_density = detected_gravity
         print(f"[vE_Scultore] Warping Spacetime Metric to Density: {self.logic_density}")
-        
+
         return {"source": detected_word, "curvature": detected_gravity}

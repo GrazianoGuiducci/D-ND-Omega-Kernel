@@ -10,25 +10,25 @@ Scientific Rigor:
 - Transfer Function -> Projection Operator / Phase Transition (Thermodynamics)
 """
 
-import jax
 import jax.numpy as jnp
-from typing import Tuple, Any
 from jaxtyping import Array, Float
+
 
 class MetricTensor:
     """
     Represents the Spacetime Metric (g_uv) of the Cognitive Space.
-    
+
     Formerly 'AssonanceMatrix', this class now defines how the space itself
     is curved by Semantic Gravity.
-    
+
     g_uv = delta_uv + h_uv (Perturbation from Flat Space)
     """
+
     def __init__(self, size: int):
         self.size = size
         # Initialize with Flat Space (Euclidean Identity)
         # We store the perturbation h_uv separately for clarity
-        self.metric = jnp.eye(size) 
+        self.metric = jnp.eye(size)
 
     def warp_space(self, i: int, j: int, gravity: float):
         """
@@ -42,20 +42,21 @@ class MetricTensor:
         self.metric = self.metric.at[i, j].set(gravity)
         self.metric = self.metric.at[j, i].set(gravity)
 
-    def get_metric(self) -> Float[Array, "N N"]:
+    def get_metric(self) -> Float[Array, "N N"]:  # noqa: F821
         return self.metric
 
-def nulla_tutto_potential(size: int, scale: float = 1.0) -> Float[Array, "N"]:
+
+def nulla_tutto_potential(size: int, scale: float = 1.0) -> Float[Array, "N"]:  # noqa: F821
     """
     Models the 'Nulla-Tutto' (NT) Potential Field.
-    
+
     Physically, this represents the 'Vacuum State' or 'Uniform Superposition'
     before observation. It is a scalar field of potential energy.
-    
+
     Args:
         size: Number of dimensions (nodes).
         scale: Energy scale of the potential.
-        
+
     Returns:
         A vector representing the potential at each node.
     """
@@ -63,15 +64,16 @@ def nulla_tutto_potential(size: int, scale: float = 1.0) -> Float[Array, "N"]:
     # We model it as a uniform field with slight quantum fluctuations (noise).
     return jnp.ones(size) * scale
 
+
 def transfer_function(
-    state: Float[Array, "N"], 
-    potential: Float[Array, "N"], 
-    metric: Float[Array, "N N"]
-) -> Float[Array, "N"]:
+    state: Float[Array, "N"],  # noqa: F821
+    potential: Float[Array, "N"],  # noqa: F821
+    metric: Float[Array, "N N"],  # noqa: F821
+) -> Float[Array, "N"]:  # noqa: F821
     """
     The 'Collapse' mechanism that transfers information from the Indeterminate
     (Potential) to the Observable (State) via the Metric Tensor.
-    
+
     Mathematically: S_new = activation( Potential + Metric @ State )
     Physically: Geodesic flow in curved space.
     """
@@ -79,9 +81,9 @@ def transfer_function(
     # In flat space (Identity), this is just the state itself.
     # In curved space, it's the covariant derivative (simplified).
     interaction = jnp.dot(metric, state)
-    
+
     # Total Field = Intrinsic Potential + Interaction
     total_field = potential + interaction
-    
+
     # Transfer/Activation (e.g., Hyperbolic Tangent for spin relaxation)
     return jnp.tanh(total_field)

@@ -1,7 +1,8 @@
-import os
 import ast
+import os
 import re
-from typing import Dict, Any, Optional
+from typing import Any, Dict, Optional
+
 from Extropic_Integration.cockpit.llm_inference import invoke_llm_for_raw_json
 
 # --- Configuration ---
@@ -37,40 +38,31 @@ from dnd_kernel.omega import OmegaKernel
 If the user asks for a specific concept (e.g., "Fibonacci"), ensure the logic reflects it.
 """
 
-async def generate_experiment_code(
-    prompt: str, 
-    model: str, 
-    api_key: Optional[str] = None
-) -> Dict[str, Any]:
+
+async def generate_experiment_code(prompt: str, model: str, api_key: Optional[str] = None) -> Dict[str, Any]:
     """
     Generates Python experiment code using the LLM.
     """
     user_prompt = f"Create a D-ND Omega Kernel experiment for: {prompt}"
-    
+
     try:
         response = await invoke_llm_for_raw_json(
-            model_name=model,
-            system_prompt=ARCHITECT_SYSTEM_PROMPT,
-            user_prompt=user_prompt,
-            api_key=api_key
+            model_name=model, system_prompt=ARCHITECT_SYSTEM_PROMPT, user_prompt=user_prompt, api_key=api_key
         )
-        
+
         # Basic validation of the generated code
         code = response.get("code", "")
         validation = validate_python_code(code)
-        
+
         if not validation["valid"]:
             response["warning"] = f"Generated code has syntax errors: {validation['error']}"
-            
+
         return response
-        
+
     except Exception as e:
         print(f"[Forge] Generation Error: {e}")
-        return {
-            "code": "", 
-            "explanation": f"Failed to generate experiment: {str(e)}", 
-            "filename": "error.py"
-        }
+        return {"code": "", "explanation": f"Failed to generate experiment: {str(e)}", "filename": "error.py"}
+
 
 def validate_python_code(code: str) -> Dict[str, Any]:
     """
@@ -84,6 +76,7 @@ def validate_python_code(code: str) -> Dict[str, Any]:
     except Exception as e:
         return {"valid": False, "error": str(e)}
 
+
 def save_experiment_file(code: str, filename: str) -> Dict[str, Any]:
     """
     Saves the generated code to the experiments directory.
@@ -91,21 +84,22 @@ def save_experiment_file(code: str, filename: str) -> Dict[str, Any]:
     try:
         if not os.path.exists(EXPERIMENTS_DIR):
             os.makedirs(EXPERIMENTS_DIR)
-            
+
         # Sanitize filename
-        filename = re.sub(r'[^\w\-_.]', '', filename)
+        filename = re.sub(r"[^\w\-_.]", "", filename)
         if not filename.endswith(".py"):
             filename += ".py"
-            
+
         file_path = os.path.join(EXPERIMENTS_DIR, filename)
-        
+
         with open(file_path, "w", encoding="utf-8") as f:
             f.write(code)
-            
+
         return {"success": True, "path": file_path, "filename": filename}
-        
+
     except Exception as e:
         return {"success": False, "error": str(e)}
+
 
 # --- Widget Forge Logic ---
 
@@ -137,11 +131,8 @@ Rules:
 - `colorTheme`: Use 'cyan' for logic, 'purple' for physics/entropy, 'green' for profit, 'orange' for risk.
 """
 
-async def generate_widget_config(
-    prompt: str, 
-    model: str, 
-    api_key: Optional[str] = None
-) -> Dict[str, Any]:
+
+async def generate_widget_config(prompt: str, model: str, api_key: Optional[str] = None) -> Dict[str, Any]:
     """
     Generates React Widget Config JSON using the LLM.
     """
@@ -150,15 +141,16 @@ async def generate_widget_config(
             model_name=model,
             system_prompt=WIDGET_SYSTEM_PROMPT,
             user_prompt=f"Create a widget for: {prompt}",
-            api_key=api_key
+            api_key=api_key,
         )
         # Ensure a unique ID timestamp to force React refresh if needed
         if "config" in response:
-             import time
-             response["config"]["id"] = f"ai_gen_{int(time.time())}"
-             
+            import time
+
+            response["config"]["id"] = f"ai_gen_{int(time.time())}"
+
         return response
-        
+
     except Exception as e:
         print(f"[Widget Forge] Generation Error: {e}")
         return {
@@ -171,7 +163,7 @@ async def generate_widget_config(
                 "colorTheme": "orange",
                 "isSystem": False,
                 "isVisible": True,
-                "colSpan": 1
+                "colSpan": 1,
             },
-            "explanation": f"LLM Error: {str(e)}"
+            "explanation": f"LLM Error: {str(e)}",
         }

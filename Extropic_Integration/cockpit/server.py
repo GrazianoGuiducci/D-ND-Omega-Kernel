@@ -3,29 +3,45 @@ SACS Cockpit Server
 Exposes the SACS Kernel via FastAPI for real-time visualization and interaction.
 """
 
-import sys
+import json
 import os
-from typing import List, Dict, Any
+import sys
+from typing import Any, Dict, List
+
 from fastapi import FastAPI, HTTPException, Request
 from pydantic import BaseModel
-from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
 
 # Add project root to path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
 
+from fastapi.responses import StreamingResponse
+
 from Extropic_Integration.architect.sacs import SACS
+from Extropic_Integration.cockpit.forge_service import (
+    generate_experiment_code,
+    generate_widget_config,
+    save_experiment_file,
+)
+from Extropic_Integration.cockpit.llm_inference import (
+    get_available_models,
+    get_openrouter_status,
+    invoke_llm_for_raw_json,
+    stream_llm_response,
+)
 
 app = FastAPI(title="SACS Cockpit", version="1.0")
+
 
 # Initialize SACS
 # We use a smaller size for the web demo to ensure responsiveness
 sacs = SACS(size=50)
 
+
 # --- Data Models ---
 class IntentRequest(BaseModel):
     intent: str
     steps: int = 300
+
 
 class CycleResponse(BaseModel):
     manifesto: str
@@ -34,12 +50,13 @@ class CycleResponse(BaseModel):
     taxonomy_update: bool
     didactic: Dict[str, Any] = {}
 
+
 # --- Helpers ---
 def to_serializable(obj):
     """Recursively converts JAX/Numpy arrays to Python native types."""
     if hasattr(obj, "tolist"):  # JAX/Numpy arrays
         return obj.tolist()
-    if hasattr(obj, "item"):    # Scalar arrays
+    if hasattr(obj, "item"):  # Scalar arrays
         return obj.item()
     if isinstance(obj, dict):
         return {k: to_serializable(v) for k, v in obj.items()}
@@ -47,7 +64,9 @@ def to_serializable(obj):
         return [to_serializable(v) for v in obj]
     return obj
 
+
 # --- Endpoints ---
+
 
 @app.post("/api/intent", response_model=CycleResponse)
 async def process_intent(request: IntentRequest):
@@ -61,16 +80,16 @@ async def process_intent(request: IntentRequest):
         sacs_output = sacs.process(request.intent, steps=request.steps)
         manifesto = sacs_output["manifesto"]
         result = sacs_output["result"]
-        
+
         # Gather metrics from the last run
         # Gather metrics from the last run
         metrics = {
             "coherence": to_serializable(result["coherence"]),
             "tension": to_serializable(result["tension"]),
             "logic_density": to_serializable(sacs.omega.logic_density),
-            "energy": to_serializable(result["energy"])
+            "energy": to_serializable(result["energy"]),
         }
-        
+
         # Get dipoles from Sonar
         dipoles = []
         if sacs.archivista.memory["cycles"]:
@@ -81,16 +100,13 @@ async def process_intent(request: IntentRequest):
         didactic_info = to_serializable(result.get("didactic", {}))
 
         return CycleResponse(
-            manifesto=manifesto,
-            metrics=metrics,
-            dipoles=dipoles,
-            taxonomy_update=True,
-            didactic=didactic_info
+            manifesto=manifesto, metrics=metrics, dipoles=dipoles, taxonomy_update=True, didactic=didactic_info
         )
-        
+
     except Exception as e:
         print(f"Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+
 
 @app.get("/api/state")
 async def get_state():
@@ -101,13 +117,14 @@ async def get_state():
     # MetricTensor is in sacs.omega.metric_tensor (if we modified omega to store it)
     # Actually, omega.crystallize uses it.
     # Let's return the logic_density and current energy.
-    
+
     return {
         "logic_density": float(sacs.omega.logic_density),
         "experience": sacs.omega.experience,
         "memory_size": len(sacs.archivista.memory["cycles"]),
-        "taxonomy": sacs.archivista.memory["taxonomy"]
+        "taxonomy": sacs.archivista.memory["taxonomy"],
     }
+
 
 @app.post("/api/reset")
 async def reset_memory():
@@ -120,18 +137,19 @@ async def reset_memory():
         # Clear memory file
         if os.path.exists("system_memory.json"):
             os.remove("system_memory.json")
-        
+
         # Re-init Archivista to reload empty memory
         sacs.archivista.memory = {"cycles": [], "taxonomy": {}}
-        
+
         # Reset Omega state (optional, but good for clean slate)
         sacs.omega.logic_density = 0.2
         sacs.omega.experience = 0
-        
+
         return {"status": "System Reset Complete", "memory_size": 0}
     except Exception as e:
         print(f"Error resetting system: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+
 
 @app.get("/api/docs")
 async def list_docs():
@@ -144,32 +162,29 @@ async def list_docs():
                 files.append(f)
     return {"files": files}
 
+
 @app.get("/api/docs/{filename}")
 async def get_doc(filename: str):
     """Retrieves the content of a documentation file."""
     docs_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../docs"))
     file_path = os.path.join(docs_dir, filename)
-    
+
     if not os.path.exists(file_path):
         raise HTTPException(status_code=404, detail="File not found")
-    
+
     with open(file_path, "r", encoding="utf-8") as f:
         content = f.read()
-    
+
     return {"content": content}
 
+
 # ... (previous imports)
-from fastapi.responses import StreamingResponse
-from Extropic_Integration.cockpit.llm_inference import (
-    invoke_llm_for_raw_json, 
-    stream_llm_response, 
-    get_openrouter_status,
-    get_available_models
-)
+
 
 # ... (previous code)
 
 # --- OpenRouter Endpoints ---
+
 
 @app.get("/openrouter/status")
 async def openrouter_status_endpoint(request: Request):
@@ -177,6 +192,7 @@ async def openrouter_status_endpoint(request: Request):
     Returns the status of OpenRouter keys (System vs User).
     """
     return get_openrouter_status(request)
+
 
 @app.get("/api/v1/openrouter/models")
 async def openrouter_models_endpoint(request: Request):
@@ -186,10 +202,12 @@ async def openrouter_models_endpoint(request: Request):
     user_key = request.headers.get("X-OpenRouter-Key")
     return await get_available_models(user_key)
 
+
 class LlmInvokeRequest(BaseModel):
     model: str
     system_prompt: str
     user_prompt: str
+
 
 @app.post("/api/llm/invoke")
 async def invoke_llm_endpoint(request: Request, payload: LlmInvokeRequest):
@@ -198,11 +216,9 @@ async def invoke_llm_endpoint(request: Request, payload: LlmInvokeRequest):
     """
     user_key = request.headers.get("X-OpenRouter-Key")
     return await invoke_llm_for_raw_json(
-        model_name=payload.model,
-        system_prompt=payload.system_prompt,
-        user_prompt=payload.user_prompt,
-        api_key=user_key
+        model_name=payload.model, system_prompt=payload.system_prompt, user_prompt=payload.user_prompt, api_key=user_key
     )
+
 
 @app.post("/api/llm/stream")
 async def stream_llm_endpoint(request: Request, payload: LlmInvokeRequest):
@@ -210,30 +226,32 @@ async def stream_llm_endpoint(request: Request, payload: LlmInvokeRequest):
     Streams LLM response via SSE.
     """
     user_key = request.headers.get("X-OpenRouter-Key")
-    
+
     async def event_generator():
         async for event in stream_llm_response(
             model_name=payload.model,
             system_prompt=payload.system_prompt,
             user_prompt=payload.user_prompt,
-            api_key=user_key
+            api_key=user_key,
         ):
             # SSE Format: data: <json>\n\n
             yield f"data: {json.dumps(event)}\n\n"
 
     return StreamingResponse(event_generator(), media_type="text/event-stream")
 
+
 # --- Forge Endpoints ---
 
-from Extropic_Integration.cockpit.forge_service import generate_experiment_code, save_experiment_file
 
 class ForgeGenerateRequest(BaseModel):
     prompt: str
-    model: str = "google/gemini-2.0-flash-exp:free" # Default model
+    model: str = "google/gemini-2.0-flash-exp:free"  # Default model
+
 
 class ForgeInjectRequest(BaseModel):
     code: str
     filename: str
+
 
 @app.post("/api/forge/generate")
 async def forge_generate_endpoint(request: Request, payload: ForgeGenerateRequest):
@@ -241,11 +259,8 @@ async def forge_generate_endpoint(request: Request, payload: ForgeGenerateReques
     Generates experiment code via LLM.
     """
     user_key = request.headers.get("X-OpenRouter-Key")
-    return await generate_experiment_code(
-        prompt=payload.prompt,
-        model=payload.model,
-        api_key=user_key
-    )
+    return await generate_experiment_code(prompt=payload.prompt, model=payload.model, api_key=user_key)
+
 
 @app.post("/api/forge/inject")
 async def forge_inject_endpoint(payload: ForgeInjectRequest):
@@ -257,13 +272,14 @@ async def forge_inject_endpoint(payload: ForgeInjectRequest):
         raise HTTPException(status_code=500, detail=result["error"])
     return result
 
+
 # --- Widget Forge ---
 
-from Extropic_Integration.cockpit.forge_service import generate_widget_config
 
 class WidgetGenerateRequest(BaseModel):
     prompt: str
     model: str = "google/gemini-2.0-flash-exp:free"
+
 
 @app.post("/api/forge/widget")
 async def forge_widget_endpoint(request: Request, payload: WidgetGenerateRequest):
@@ -271,18 +287,17 @@ async def forge_widget_endpoint(request: Request, payload: WidgetGenerateRequest
     Generates a React Widget Configuration JSON via LLM.
     """
     user_key = request.headers.get("X-OpenRouter-Key")
-    return await generate_widget_config(
-        prompt=payload.prompt,
-        model=payload.model,
-        api_key=user_key
-    )
+    return await generate_widget_config(prompt=payload.prompt, model=payload.model, api_key=user_key)
+
 
 # --- Widget Persistence ---
 
 WIDGETS_FILE = os.path.abspath(os.path.join(os.path.dirname(__file__), "../custom_widgets.json"))
 
+
 class SaveWidgetRequest(BaseModel):
     widgets: List[Dict[str, Any]]
+
 
 @app.get("/api/widgets")
 async def get_widgets():
@@ -291,7 +306,7 @@ async def get_widgets():
     """
     if not os.path.exists(WIDGETS_FILE):
         return {"widgets": []}
-    
+
     try:
         with open(WIDGETS_FILE, "r", encoding="utf-8") as f:
             content = f.read()
@@ -301,6 +316,7 @@ async def get_widgets():
     except Exception as e:
         print(f"[Widgets] Load Error: {e}")
         return {"widgets": []}
+
 
 @app.post("/api/widgets")
 async def save_widgets(payload: SaveWidgetRequest):
@@ -315,8 +331,10 @@ async def save_widgets(payload: SaveWidgetRequest):
         print(f"[Widgets] Save Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
+
 # ... (rest of server.py)
 
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run(app, host="127.0.0.1", port=8000)

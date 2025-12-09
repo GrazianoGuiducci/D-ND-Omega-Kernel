@@ -43,7 +43,7 @@ class TestOmegaAutological(unittest.TestCase):
         # Force a low coherence result manually to test adaptation
         # We simulate a result with 0.05 coherence (below 0.1 threshold)
         # fake_result = {"coherence": 0.05, "R": jnp.zeros(50), "energy": 0.0}
-        
+
         initial_density = kernel.logic_density
         # _adapt(coherence, tension, is_stable)
         kernel._adapt(0.05, 0.5, False)
@@ -53,7 +53,7 @@ class TestOmegaAutological(unittest.TestCase):
         # Wait, let's check the logic in omega.py:
         # if not is_stable: density += 0.05
         # elif coherence < 0.5: density -= 0.05
-        
+
         # If we pass is_stable=False, it should increase density.
         self.assertGreater(kernel.logic_density, initial_density)
 
