@@ -334,6 +334,41 @@ async def save_widgets(payload: SaveWidgetRequest):
 
 # ... (rest of server.py)
 
+
+@app.delete("/api/widgets/{widget_id}")
+async def delete_widget(widget_id: str):
+    """
+    Deletes a single widget by its ID.
+    """
+    try:
+        # Load current widgets
+        widgets = []
+        if os.path.exists(WIDGETS_FILE):
+            with open(WIDGETS_FILE, "r", encoding="utf-8") as f:
+                content = f.read()
+                if content.strip():
+                    widgets = json.loads(content)
+
+        # Find and remove the widget
+        original_count = len(widgets)
+        widgets = [w for w in widgets if w.get("id") != widget_id]
+
+        if len(widgets) == original_count:
+            raise HTTPException(status_code=404, detail=f"Widget {widget_id} not found")
+
+        # Save updated list
+        with open(WIDGETS_FILE, "w", encoding="utf-8") as f:
+            f.write(json.dumps(widgets, indent=2))
+
+        return {"success": True, "deleted": widget_id}
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"[Widgets] Delete Error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 if __name__ == "__main__":
     import uvicorn
 
