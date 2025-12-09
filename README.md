@@ -139,6 +139,15 @@ The kernel is implemented in `Extropic_Integration/dnd_kernel` and extends `thrm
 -   **`omega.py`**: Orchestrates the thermodynamic cycle using `thrml.sample_states`.
 -   **`utils.py`**: Implements **Semantic Resonance** (Concept -> Bias mapping).
 
+### SACS Architecture (Evolutionary Upgrade)
+The system has evolved into **SACS (System Architecture for Cognitive Synthesis)**, a complete cognitive pipeline:
+1.  **Perception**: `vE_Sonar` detects semantic dipoles.
+2.  **Construction**: `vE_Telaio` warps the **MetricTensor** ($g_{\mu\nu}$).
+3.  **Processing**: `OmegaKernel` collapses the field.
+4.  **Evolution**: `vE_Scultore` chisels energy landscapes, and `vE_Archivista` learns from history.
+
+> **[See the Full Technical Whitepaper for SACS Architecture](Extropic_Integration/docs/D-ND_Extropic_Technical_Whitepaper.md)**
+
 ### Autological Evolution (Self-Improvement)
 
 The Kernel is not static; it possesses a **Feedback Loop (Autopoiesis)**.
@@ -171,9 +180,34 @@ Running this architecture on standard GPUs (via JAX) is a simulation. The ultima
 
 > *"The D-ND Kernel is not just an application; it is the Operating System for the thermodynamic era."*
 
+### Beyond Thermodynamics: The Context-Aware Horizon
+
+While current thermodynamic computing focuses on energy efficiency and stochastic sampling, the D-ND Omega Kernel anticipates the next evolutionary leap: **Context-Aware Hardware**.
+
+The D-ND architecture posits that "Gravity" in a cognitive system is not just a metaphor, but a rigorous application of **Information Geometry**. Here, the "Spacetime Metric" ($g_{\mu\nu}$) represents the **Fisher Information Metric** of the probability manifold. This implies that future hardware must not only minimize energy ($H$) but also dynamically warp its own statistical topology based on semantic context.
+
+-   **Current State**: We simulate this warping via `vE_Telaio` (Metric Construction) and `vE_Scultore` (Hebbian Sculpting) on top of standard Ising models.
+-   **Future Vision**: We envision hardware where the **connectivity graph itself is fluid** (similar to **Synaptic Plasticity** in biological brains or **Memristive Arrays** in silicon). The D-ND Kernel is the prototype control logic for this **Self-Organizing Circuitry**.
+
+This approach extends the thermodynamic paradigm from **Passive Relaxation** (Annealing) to **Active Morphogenesis** (Structural Learning).
+
 ### Deep Dive
 
 For a complete theoretical breakdown and architectural details, please refer to the internal documentation:
 
 -   📄 **[Technical Whitepaper (Isomorphism & Physics)](Extropic_Integration/docs/D-ND_Extropic_Technical_Whitepaper.md)**
 -   🏗️ **[Kernel Architecture & Implementation Details](Extropic_Integration/docs/D-ND_KERNEL_ARCHITECTURE_THRML_v1.md)**
+
+### Applied Research: Financial Determinism Lab
+To validate the D-ND Omega Kernel in a complex, real-world environment, we have established the **Financial Determinism Lab**.
+-   **Purpose**: Use financial markets as a high-entropy dataset to test the Kernel's ability to find "Order" (Profit/Stability) from "Chaos" (Market Volatility).
+-   **Mechanism**: Financial data is mapped to thermodynamic states (Liquidity = Energy, Risk = Entropy). The Kernel "anneals" this data to find optimal strategies.
+-   **Strategic Goal**: This serves as both a validation testbed for Extropic hardware and a revenue generation engine to fund further research.
+
+### SACS Cockpit (React UI)
+The system is controlled via the **SACS Cockpit**, a modern React-based interface located in `Extropic_Integration/cockpit/client`.
+-   **Mission Control**: Orchestrate experiments and monitor system status.
+-   **Kernel View**: Visualize the "Physics of Thought" (Dipoles, Energy Graphs).
+-   **Financial Lab**: Monitor real-time financial simulations driven by the Kernel.
+-   **Experimental Forge**: AI-assisted generation of new thermodynamic protocols.
+

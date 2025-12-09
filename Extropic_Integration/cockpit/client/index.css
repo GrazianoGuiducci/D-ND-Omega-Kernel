@@ -1,0 +1,47 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* GLOBAL SCROLLBAR STYLING */
+/* Use theme variables for colors to ensure consistency */
+::-webkit-scrollbar {
+    width: 10px;  /* Wider for easier grabbing */
+    height: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.2);
+    border-left: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(var(--col-primary-rgb), 0.3); /* Theme primary color with low opacity */
+    border: 1px solid rgba(var(--col-primary-rgb), 0.5);
+    border-radius: 5px;
+    box-shadow: 0 0 5px rgba(var(--col-primary-rgb), 0.2); /* Luminous effect */
+    transition: all 0.2s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(var(--col-primary-rgb), 0.6);
+    box-shadow: 0 0 10px rgba(var(--col-primary-rgb), 0.5); /* Stronger glow on hover */
+    cursor: grab;
+}
+
+::-webkit-scrollbar-thumb:active {
+    background: rgba(var(--col-primary-rgb), 0.9);
+    cursor: grabbing;
+}
+
+/* Firefox support */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(var(--col-primary-rgb), 0.3) rgba(0, 0, 0, 0.2);
+}
+
+/* Ensure modals have white background as requested for specific new modals if needed, 
+   but keeping global dark theme consistent. 
+   The user mentioned "new modals have white BG" - assuming they meant the content area 
+   or specific parts, but generally the app is dark mode. 
+   I will ensure the scrollbar works on both dark and light backgrounds by using the theme color.
+*/

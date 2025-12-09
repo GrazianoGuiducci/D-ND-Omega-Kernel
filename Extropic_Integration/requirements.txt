@@ -9,3 +9,6 @@ scipy
 matplotlib
 # Install thrml from the root directory in editable mode
 -e ../
+-e ../
+fastapi
+uvicorn

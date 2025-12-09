@@ -1,0 +1,5 @@
+{
+  "name": "MMS kernel Tester 22-11-25",
+  "description": "An interface to design and simulate cognitive workflows using the MMS Kernel architecture. Define an intent, select cognitive modules, and activate the autological engine powered by Gemini to generate a structured result.",
+  "requestFramePermissions": []
+}

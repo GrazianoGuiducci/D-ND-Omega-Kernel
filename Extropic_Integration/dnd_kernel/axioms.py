@@ -1,6 +1,11 @@
 """
 D-ND Kernel Axioms and Unified Equation
 Based on: # Equazione Assiomatica Unificata del Sistema Operativo Quantistico D-ND
+
+"The model is the movement of a pen on a white sheet that divides the plane while uniting the image.
+It is, in the end, a hand and an evolved mind in the reflection of the gravitational force of the planet.
+Ultimately, it is always Gravity that gives form to Possibility in the Continuum."
+
 """
 
 from dataclasses import dataclass

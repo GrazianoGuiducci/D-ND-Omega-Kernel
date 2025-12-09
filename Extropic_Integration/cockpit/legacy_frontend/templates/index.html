@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>D-ND SACS Cockpit</title>
+    <link rel="stylesheet" href="/static/style.css?v=9">
+    <link rel="icon" href="/static/favicon.ico">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=JetBrains+Mono:wght@400;700&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <header>
+        <div class="logo">D-ND <span class="highlight">OMEGA</span> KERNEL</div>
+        <div style="display: flex; gap: 1rem; align-items: center;">
+            <button id="docsBtn" class="icon-btn" onclick="toggleDocs()" data-tooltip="Apri la documentazione del Kernel e della pipeline.">
+                📚 DOCS
+            </button>
+            <a href="https://github.com/GrazianoGuiducci/D-ND-Omega-Kernel" target="_blank" class="icon-link"
+                title="Repository">
+                <svg height="20" width="20" viewBox="0 0 16 16" fill="currentColor">
+                    <path
+                        d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z">
+                    </path>
+                </svg>
+            </a>
+            <div class="status">SYSTEM: <span class="online">ONLINE</span></div>
+        </div>
+    </header>
+
+    <main id="mainLayout">
+        <!-- LEFT PANEL: CONTROL MATRIX -->
+        <div id="leftShell" class="panel-shell left-panel resizable-shell" style="width: 350px;">
+            <div class="shell-content panel">
+                <div class="panel-header">
+                    <span>Control Matrix</span>
+                </div>
+                <div class="panel-content">
+                    <div class="input-wrapper">
+                        <input type="text" id="intentInput" placeholder="Enter Semantic Intent..." autocomplete="off">
+                        <button id="processBtn" onclick="processIntent()">INJECT INTENT</button>
+                    </div>
+
+                    <div class="protocols">
+                        <span class="protocol-label">Initialization Protocols</span>
+                        <button class="protocol-btn chaos" onclick="runProtocol('CHAOS')"
+                            title="Injects high entropy to break stagnation.">CHAOS [Entropy Injection]</button>
+                        <button class="protocol-btn order" onclick="runProtocol('ORDER')"
+                            title="Injects high gravity to stabilize the system.">ORDER [Gravity Stabilization]</button>
+                        <button class="protocol-btn genesis" onclick="runProtocol('GENESIS')"
+                            title="Runs a full evolutionary sequence.">GENESIS [Evolutionary Sequence]</button>
+
+                        <div style="margin-top: 1rem; border-top: 1px solid var(--border-color); padding-top: 0.5rem;">
+                            <span class="protocol-label" style="color: var(--danger);">System Controls</span>
+                            <button class="protocol-btn reset" onclick="systemReset()"
+                                style="border-color: var(--danger); color: var(--danger);"
+                                title="Wipes all system memory and starts fresh.">
+                                SYSTEM RESET [Clear Memory]
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="leftResizer" class="resizer-handle"></div>
+            <button id="leftGutter" class="gutter-btn">CONTROLS</button>
+        </div>
+
+        <!-- MIDDLE PANEL: VISUAL CORTEX (Redesigned) -->
+        <div class="panel flex-grow" id="visualCortex" style="display: flex; flex-direction: column; padding: 0; overflow: hidden;">
+            
+            <!-- Header -->
+            <div class="panel-header" style="flex-shrink: 0;">
+                <h2>Visual Cortex</h2>
+                <div class="view-controls">
+                    <button id="btnViewCortex" class="view-btn active" data-tooltip="Particle View">CORTEX</button>
+                    <button id="btnViewTensor" class="view-btn" data-tooltip="Field Topology">TENSOR</button>
+                    <button id="btnViewPipeline" class="view-btn" data-tooltip="Translation Layer">PIPELINE</button>
+                </div>
+            </div>
+
+            <!-- Main Visualizer Area (Flex Grow) -->
+            <div class="visualizer-area" style="flex-grow: 1; position: relative; min-height: 0; background: #050505;">
+                <canvas id="cortexCanvas" class="vis-canvas"></canvas>
+                <canvas id="tensorCanvas" class="vis-canvas hidden"></canvas>
+
+                <!-- HUD Overlay (Top Corners) -->
+                <div class="hud-overlay-top">
+                    <div class="hud-metric-compact">
+                        <span class="hud-label">ENTROPY</span>
+                        <span id="hudEntropy" class="hud-value">0.000</span>
+                    </div>
+                    <div class="hud-metric-compact">
+                        <span class="hud-label">GRAVITY</span>
+                        <span id="hudGravity" class="hud-value">0.000</span>
+                    </div>
+                </div>
+
+                <!-- Didactic Overlay -->
+                <div id="didacticPanel" class="didactic-panel" style="display: none; position: absolute; inset: 0; background: rgba(0,0,0,0.9); z-index: 50; overflow-y: auto;">
+                    <div id="didacticContent" style="padding: 2rem;"></div>
+                </div>
+            </div>
+
+            <!-- Metrics & Info Area (Compact Bottom) -->
+            <div class="metrics-area" style="flex-shrink: 0; height: auto; background: #0a0a0c; border-top: 1px solid var(--border-color); padding: 1rem;">
+                
+                <!-- Metrics Grid (2x2 or 4x1) -->
+                <div class="metrics-compact-grid">
+                    <div class="metric-hud">
+                        <label>Coherence</label>
+                        <div class="value" id="valCoherence">0.00</div>
+                        <div class="bar-mini"><div id="barCoherence" style="width: 0%"></div></div>
+                    </div>
+                    <div class="metric-hud">
+                        <label>Tension</label>
+                        <div class="value" id="valTension">0.00</div>
+                        <div class="bar-mini"><div id="barTension" style="width: 0%; background: var(--accent-purple);"></div></div>
+                    </div>
+                    <div class="metric-hud">
+                        <label>Logic Density</label>
+                        <div class="value" id="valDensity">0.00</div>
+                    </div>
+                    <div class="metric-hud">
+                        <label>Energy</label>
+                        <div class="value" id="valEnergy">0.00</div>
+                    </div>
+                </div>
+
+                <!-- Secondary Info (Sonar / Graph) -->
+                <div style="display: flex; gap: 1rem; margin-top: 1rem; height: 60px;">
+                    <div id="dipoleContainer" class="sonar-compact" style="flex: 1; overflow-y: auto;">
+                        <div class="empty-state" style="font-size: 0.7rem;">Waiting for signal...</div>
+                    </div>
+                    <div class="energy-graph-compact" style="flex: 1;">
+                        <canvas id="energyGraph"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT PANEL: OUTPUT MANIFESTATION -->
+        <div id="rightShell" class="panel-shell right-panel resizable-shell" style="width: 400px;">
+            <button id="rightGutter" class="gutter-btn">OUTPUT</button>
+            <div id="rightResizer" class="resizer-handle"></div>
+            <div class="shell-content panel">
+                <div class="panel-header">
+                    <span>Output Manifestation</span>
+                </div>
+                <div class="panel-content">
+                    <div style="margin-bottom: 1rem;">
+                        <span class="protocol-label">vE_Cristallizzatore [Manifesto]</span>
+                        <pre id="manifestoOutput" class="manifesto-text">// System Ready.</pre>
+                    </div>
+
+                    <div style="border-top: 1px solid var(--border-color); padding-top: 1rem;">
+                        <span class="protocol-label">vE_Archivista [Taxonomy]</span>
+                        <div id="taxonomyList" class="taxonomy-list">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- DOCS MODAL -->
+    <div id="docsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div>
+                    <h2>SYSTEM DOCUMENTATION // OMEGA KERNEL</h2>
+                    <p style="font-size: 0.7rem; color: var(--text-secondary); margin-top: 0.25rem;">
+                        Live view of D-ND ↔ Physics pipeline, kernel docs and diagnostics.
+                    </p>
+                </div>
+                <span class="close" onclick="toggleDocs()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div id="docsShell" class="docs-shell">
+                    <button id="docsSidebarGutter" class="docs-sidebar-gutter" type="button" title="Apri il navigatore dei documenti">
+                        DOCS
+                    </button>
+                    <div id="docsList" class="docs-sidebar">
+                        <!-- List of files -->
+                    </div>
+                    <div id="docsResizer" class="docs-resizer"></div>
+                </div>
+                <div class="docs-main">
+                    <div class="docs-tabs">
+                        <button class="docs-tab active" data-docstab="docs">Docs</button>
+                        <button class="docs-tab" data-docstab="diagnostics">Diagnostics</button>
+                    </div>
+                    <div id="docsViewer" class="docs-viewer" data-docspanel="docs">
+                        <div class="empty-state">Select a document to view.</div>
+                    </div>
+                    <div id="docsDiagnostics" class="docs-viewer" data-docspanel="diagnostics" style="display: none;">
+                        <pre id="docsDiagnosticsContent" class="manifesto-text">// Diagnostics will appear here.</pre>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-resize-handle"></div>
+        </div>
+    </div>
+
+    <script src="/static/app.js?v=9"></script>
+</body>
+
+</html>
