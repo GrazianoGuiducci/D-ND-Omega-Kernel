@@ -7,7 +7,7 @@ import DidacticLayer from './DidacticLayer';
 import { OmegaPhysicsEngine, EXPERIMENTS, translateIntentToHamiltonian } from '../services/omegaPhysics';
 import { generateDslTrace } from '../services/omegaDSL';
 import { OmegaState } from '../types';
-import { getAiAnalysis } from '../services/geminiService';
+import { getKernelIntent } from '../services/kernelBridge.service';
 import QuantumTooltip from './QuantumTooltip';
 import SmartTooltip from './SmartTooltip';
 import { Resizer } from './Resizer';
@@ -182,10 +182,9 @@ const OmegaCockpit: React.FC<OmegaCockpitProps> = ({ onClose, onOpenDocs, initia
             // We should probably add a specific service method for /api/intent or ensure getAiAnalysis handles it.
             // For now, assuming getAiAnalysis is the gateway.
 
-            const aiResponse = await getAiAnalysis(
+            const aiResponse = await getKernelIntent(
                 targetIntent,
-                "OMEGA_KERNEL_MODE",
-                undefined
+                "OMEGA_KERNEL_MODE"
             );
             setResult(aiResponse.analysis);
         } catch (e) {
