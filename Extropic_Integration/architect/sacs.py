@@ -90,7 +90,7 @@ class SACS:
             "lattice": lattice_data,
             "tensor_field": tensor_field,
             "entropy": float(self.omega.entropy),
-            "gravity": float(gravity_info["gravity"]),
+            "gravity": float(gravity_info["curvature"]),
         }
 
         print("=== SACS CYCLE END ===\n")
