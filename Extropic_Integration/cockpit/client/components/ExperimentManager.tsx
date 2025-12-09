@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { ExperimentConfig, ExperimentCategory } from '../types';
 import { EXPERIMENTS } from '../services/omegaPhysics';
-import { generatePhysicsConfig } from '../services/geminiService';
+import { generatePhysicsConfig } from '../services/kernelBridge.service';
 import { SparklesIcon } from './icons/SparklesIcon';
 import { PlusIcon } from './icons/PlusIcon';
 import { ArrowPathIcon } from './icons/ArrowPathIcon';
