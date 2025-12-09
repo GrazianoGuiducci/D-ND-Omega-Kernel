@@ -44,14 +44,15 @@ This graph shows the **Relaxation of Thought**.
 -   **Cash Flow**: Monitors the system's "energy" (capital) accumulation.
 -   **Portfolio**: Tracks assets optimized by the Kernel's annealing process.
 
-### 5. Experimental Forge (Mission Control)
--   **Architect Mode**: Use AI to generate new Python experiments from natural language prompts.
--   **Blueprint Mode**: Preview, edit, and inject generated code directly into the Kernel.
--   **Templates**: Quick-start with standard protocols (e.g., Fibonacci, Ising Grid).
+### 5. Experimental Forge (Zero-Shot UI)
+The Forge is now a **Hybrid Generative Engine** powered by OpenRouter.
+-   **Text-to-Widget**: Type a description (e.g., *"Create a circular progress bar for CPU usage"*) and watch the system build the React component in real-time.
+-   **Live Interaction**: Generated widgets are fully functional and interactive.
+-   **Persistence**: Any widget you create is automatically saved. When you reload the Cockpit, your custom dashboard is restored exactly as you left it.
+-   **Architect Mode**: (Advanced) Use AI to generate Python kinetic experiments.
 
 ## How to Use
-1.  Start with **CHAOS** to wake up the system.
-2.  Inject an **Intent** (e.g., "Analyze the relationship between logic and emotion").
-3.  Watch the **Energy Graph**: Does it settle down?
-4.  Check the **Manifesto**: Did the system reach a conclusion?
-5.  Use **GENESIS** to see the system evolve on its own.
+1.  **Exploration**: Start with **CHAOS** to wake up the system.
+2.  **Creation**: Go to the **Forge** tab, click "New Widget", and describe a tool you need. The AI will code it for you.
+3.  **Observation**: Watch the **Energy Graph** settle as the Kernel processes your intent.
+4.  **Analysis**: Check the **Manifesto** for the "Conclusion" of the cognitive cycle.

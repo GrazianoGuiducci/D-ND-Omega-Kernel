@@ -209,5 +209,6 @@ The system is controlled via the **SACS Cockpit**, a modern React-based interfac
 -   **Mission Control**: Orchestrate experiments and monitor system status.
 -   **Kernel View**: Visualize the "Physics of Thought" (Dipoles, Energy Graphs).
 -   **Financial Lab**: Monitor real-time financial simulations driven by the Kernel.
--   **Experimental Forge**: AI-assisted generation of new thermodynamic protocols.
+-   **Experimental Forge**: **[NEW]** Hybrid AI Engine (OpenRouter) that generates persistent, functional React Widgets on-the-fly.
+-   **Hybrid Persistence**: Full state saving for generated UI elements across sessions.
 
