@@ -565,4 +565,4 @@ class OmegaKernel:
         self.logic_density = detected_gravity
         print(f"[vE_Scultore] Warping Spacetime Metric to Density: {self.logic_density}")
         
-        return {"source": detected_word, "gravity": detected_gravity}
+        return {"source": detected_word, "curvature": detected_gravity}
