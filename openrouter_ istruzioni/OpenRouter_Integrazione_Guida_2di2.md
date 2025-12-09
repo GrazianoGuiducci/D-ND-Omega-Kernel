@@ -411,4 +411,4 @@ In questo modo hai:
 - Un flusso automatico che **invita l’utente ad aggiungere la propria chiave** quando la chiave di sistema non è più sufficiente.
 ---
 openrouter apikey per D-ND OMEGA KERNEL
-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
+[KEY REDACTED]
